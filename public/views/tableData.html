@@ -1,0 +1,18 @@
+<table  border="1" width="100%" cellpadding="2" cellspacing="0">
+        <tr>
+        <th>Firstname</th>
+        <th>Lastname</th>
+        <th>Organization</th>
+        <th></th>
+        <th></th>
+        </tr>
+        <tr ng-repeat="info in tableData">
+            <td>{{info.firstname}}</td>
+            <td>{{info.lastname}}</td>
+            <td>{{info.organisation}}</td>
+            <td><a href="#/edit/:id" id="">Edit</a></td>
+            <td><a href="#/delete/{{info._id}}" id={{info._id}} >Delete</a></td>
+            
+        </tr>
+    </table><br><br>
+    <a href="#/new">Add Details!!</a>
