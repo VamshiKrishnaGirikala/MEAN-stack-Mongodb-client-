@@ -2,6 +2,7 @@ var MongoClient=require('mongodb').MongoClient;
 var express=require('express');
 var bodyParser=require("body-parser");
 var engines=require("consolidate");
+var ObjectId=require("mongodb").ObjectID;
 var app=express();
 app.use(express.static(__dirname + '/public')); 
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -16,8 +17,7 @@ app.get('/',function(req,res){
 app.get("/getarticles",function(req,res){
     db.collection('formmodels').find().toArray(function(err,docs){
         res.end(JSON.stringify(docs));
-        console.log("*********")
-        console.log(docs);
+        console.log("loaded");  
         });
 })
  //Create:
@@ -38,24 +38,63 @@ app.post("/new",function(req,res){
     });
 });
 
+//EDIT:
+app.get("/editpost/:id/edit",function(req,res){
+    db.collection('formmodels').find({_id:ObjectId(req.params.id)}).toArray(function(err,data){
+        if(err)
+        {
+            console.log(err);
+        }
+        else{
+            // console.log("edit page!!")
+            res.send(data);
+        }
+    })
+});
 
-// //SHOW:
-// app.get("/:id",function(req,res){
-//     db.collection('articles').findOne()
-// })
+//UPDATE POST:
+app.put("/editpost/:id",function(req,res){
+    var firstname=req.body.firstname;
+    var lastname=req.body.lastname;
+    var organisation=req.body.organisation;
+    var editContent={firstname:req.body.firstname,
+                     lastname:req.body.lastname,
+                     organisation:req.body.organisation};
+    db.collection('formmodels').updateOne({_id:ObjectId(req.params.id)},{$set:editContent},function(err,data){
+        if(err){
+            console.log(err);
+        }
+        else{
+            res.send(data);
+        }
+    })
+    // console.log(editContent);
+})
+//DELETE:
+app.delete("/delete",function(req,res){
+    
+   console.log(req.body.delId);
+    
+    db.collection('formmodels').deleteOne({_id:ObjectId(req.body.delId)},function(err,data){
+        if(err)
+        {
+            console.log("**********")
+           console.log(err);
+        }
+        else{
+            db.collection('formmodels').find().toArray(function(err,docs){
+                res.end(JSON.stringify(docs));
+                console.log("**********")
+                // console.log(docs);
+                
+                // res.send({success:true})
+                //  console.log(data);
+                
+                });
 
-// //DELETE:
-// app.delete("/delete/:id",function(req,res){
-//     var id=req.params.id;
-//     console.log('+++++++++++++++++++++++++=')
-//     console.log(id)
-//     db.collection('articles').deleteOne({"_id":"ObjectId("+id+")"},function(err,data){
-//         if(!err)
-//         {
-//             res.redirect("/");
-//         }
-//     })
-// })
+        }
+    })
+})
 
 MongoClient.connect(mongodb_conn_str,function(err,client){
     if(!err)
@@ -64,11 +103,7 @@ MongoClient.connect(mongodb_conn_str,function(err,client){
             console.log("server started!!")
             db=client.db('form');
     })
-        //  db=client.db('marlabs');
-        // db.collection('users').find().toArray(function(err,docs){
-        //     console.log(docs);
-        // })
-        // console.log("connection established!!!");
+       
     }
 
 
